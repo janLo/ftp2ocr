@@ -399,8 +399,8 @@ def read_user_list(list_file) -> typing.List[UserEntry]:
     "-r", "--passv-range", help="PASV port range", required=False, default=None
 )
 @click.option("-r", "--passv-host", help="PASV hostname", required=False, default=None)
-@click.option("-c", "--certfile", help="certificate file")
-@click.option("-k", "--keyfile", help="private key file")
+@click.option("-c", "--certfile", help="certificate file", default="cert.pem")
+@click.option("-k", "--keyfile", help="private key file", default="key.pem")
 def main(base_dir, user_list, port, passv_range, passv_host, certfile, keyfile):
     logging.basicConfig(level=logging.INFO)
 
