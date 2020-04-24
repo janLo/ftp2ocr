@@ -19,6 +19,8 @@ RUN \
 
 FROM python:3.8
 
+RUN useradd -u 33  ftpuser
+
 RUN apt update &&\
     apt -y install \
         ocrmypdf \
@@ -32,8 +34,8 @@ RUN apt update &&\
 COPY --from=builder /usr/local/lib/ /usr/local/lib/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
-
-
 ADD src/ftp2ocr.py /bin
+
+USER ftp_user
 
 ENTRYPOINT /bin/ftp2ocr.py
