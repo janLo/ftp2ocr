@@ -29,7 +29,7 @@ RUN apt update &&\
     apt clean &&\
     rm -rf /var/lib/apt/lists/*
 
-RUN pip install pyftpdlib pikepdf click cryptography
+RUN pip install pyftpdlib pikepdf click cryptography pyOpenSSL
 
 COPY --from=builder /usr/local/lib/ /usr/local/lib/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
