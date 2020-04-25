@@ -27,7 +27,9 @@ RUN apt update &&\
         pngquant \
         &&\
     apt clean &&\
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* &&
+
+RUN pip install pyftpdlib pikepdf click cryptography
 
 COPY --from=builder /usr/local/lib/ /usr/local/lib/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
