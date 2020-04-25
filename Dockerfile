@@ -39,4 +39,4 @@ RUN chmod +x /bin/ftp2ocr.py
 
 USER www-data
 
-ENTRYPOINT /bin/ftp2ocr.py
+ENTRYPOINT ["/bin/ftp2ocr.py"]
