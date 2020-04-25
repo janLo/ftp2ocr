@@ -33,7 +33,7 @@ COPY --from=builder /usr/local/lib/ /usr/local/lib/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 ADD src/ftp2ocr.py /bin
-RUN chmod +x /bin/ftp2ocr
+RUN chmod +x /bin/ftp2ocr.py
 
 USER www-data
 
