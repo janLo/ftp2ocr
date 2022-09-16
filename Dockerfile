@@ -23,11 +23,14 @@ RUN apt update &&\
     apt -y install \
         ocrmypdf \
         curl \
+        libjemalloc2 \
         tesseract-ocr-deu \
         pngquant \
         &&\
     apt clean &&\
     rm -rf /var/lib/apt/lists/*
+
+ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
 
 RUN pip install pyftpdlib pikepdf click cryptography pyOpenSSL
 
