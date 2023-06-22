@@ -1,4 +1,4 @@
-FROM python:3.10 as builder
+FROM python:3.11 as builder
 
 RUN apt update &&\
     apt -y install \
@@ -17,7 +17,7 @@ RUN \
     && cd .. \
     && rm -rf jbig2
 
-FROM python:3.10
+FROM python:3.11
 
 RUN apt update &&\
     apt -y install \
