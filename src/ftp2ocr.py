@@ -337,7 +337,7 @@ class PdfProcessor:
 
         return OcrFtpHandler
 
-    def make_observer(self, user_manager: UserManager):
+    def make_observer(self, user_manager):
         for entry in user_manager.users():
             self._observer.schedule(ObserveHandler(self), self._path_factory.observed(entry.username), recursive=True)
     
