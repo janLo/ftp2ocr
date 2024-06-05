@@ -177,7 +177,7 @@ def _reorder_duplex(input: str, output: str):
 
 def _run_ocr_processor(input: str, output: str):
     proc = subprocess.Popen(
-        f"ocrmypdf --rotate-pages --language deu --deskew --clean --optimize 3 --jbig2-lossy --quiet {input} {output}",
+        ["/usr/bin/ocrmypdf", "--rotate-pages", "--language", "deu", "--deskew", "--clean", "--optimize", "3", "--jbig2-lossy", "--quiet", input, output],
         shell=True,
         stderr=subprocess.PIPE,
     )
