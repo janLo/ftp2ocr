@@ -393,7 +393,7 @@ class UserManager(DummyAuthorizer):
                 recursive=True,
             )
 
-    def users() -> UserEntry:
+    def users(self) -> UserEntry:
         return list(self._user_list)
 
     def validate_authentication(self, username, password, handler):
