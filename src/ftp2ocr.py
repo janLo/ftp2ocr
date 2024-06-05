@@ -355,6 +355,9 @@ class ObserveHandler(FileSystemEventHandler):
         if isinstance(event, FileCreatedEvent):
             self._processor.process(event.src_path)
 
+    def on_moved(self, event):
+        self._processor.process(event.dest_path)
+
 
 class UserManager(DummyAuthorizer):
     def __init__(self, path_factory: PathFactory, user_list: typing.List[UserEntry]):
