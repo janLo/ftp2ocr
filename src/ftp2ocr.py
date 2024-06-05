@@ -186,7 +186,7 @@ def _run_ocr_processor(input: str, output: str):
 
     if proc.returncode != 0:
         err = proc.stderr.read()
-        raise RuntimeError(str(cmd) + "\n" + err)
+        raise RuntimeError(str(cmd) + "\n" + err.decode("utf-8"))
 
 
 def _write_error(input: str, target: str, error: str):
@@ -355,6 +355,9 @@ class ObserveHandler(FileSystemEventHandler):
     def do_process(self, filename):
         if ".pdfocr." in filename or not filename.endswith(".pdf"):
             _log.info("Ignore observed file %s", filename)
+            return
+        if " " in filename:
+            os.rename(filename, filename.replace(" ", "_"))
             return
         self._processor.process(filename)
     
