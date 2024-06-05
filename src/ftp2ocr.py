@@ -179,7 +179,7 @@ def _run_ocr_processor(input: str, output: str):
     cmd = ["/usr/bin/ocrmypdf", "--rotate-pages", "--language", "deu", "--deskew", "--clean", "--optimize", "3", "--jbig2-lossy", "--quiet", input, output]
     proc = subprocess.Popen(
         cmd,
-        shell=True,
+        shell=False,
         stderr=subprocess.PIPE,
     )
     proc.wait(300)
@@ -356,9 +356,9 @@ class ObserveHandler(FileSystemEventHandler):
         if ".pdfocr." in filename or not filename.endswith(".pdf"):
             _log.info("Ignore observed file %s", filename)
             return
-        if " " in filename:
-            os.rename(filename, filename.replace(" ", "_"))
-            return
+        #if " " in filename:
+        #    os.rename(filename, filename.replace(" ", "_"))
+        #    return
         self._processor.process(filename)
     
     def on_created(self, event):
