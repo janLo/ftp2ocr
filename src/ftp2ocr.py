@@ -350,7 +350,7 @@ class ObserveHandler(FileSystemEventHandler):
         self._processor = processor
 
     def on_created(self, event):
-        if isinstance(self, event, FileCreatedEvent):
+        if isinstance(event, FileCreatedEvent):
             self._processor.process(event.src_path)
 
 
