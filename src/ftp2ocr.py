@@ -20,7 +20,7 @@ import click
 from pyftpdlib.servers import FTPServer
 
 from watchdog.observers import Observer
-from watchdog.events import LoggingEventHandler, FileCreatedEvent
+from watchdog.events import FileSystemEventHandler, FileCreatedEvent
 
 _log = logging.getLogger(__name__)
 
