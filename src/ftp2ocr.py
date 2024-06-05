@@ -307,6 +307,8 @@ class PdfProcessor:
             self.run_reorder_duplex(process)
         elif _is_subpath(file, self._path_factory.new_simplex(user)):
             self.run_ocr(process)
+        elif _is_subpath(file, self._path_factory.observed(user)):
+            self.run_ocr(process)
         elif _is_subpath(file, self._path_factory.new_raw(user)):
             self.move_processed(process)
         else:
