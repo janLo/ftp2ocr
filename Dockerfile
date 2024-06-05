@@ -26,6 +26,8 @@ RUN apt update &&\
         libjemalloc2 \
         tesseract-ocr-deu \
         pngquant \
+        npaper \
+        jbig2 \
         &&\
     apt clean &&\
     rm -rf /var/lib/apt/lists/*
