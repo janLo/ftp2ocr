@@ -19,6 +19,9 @@ import pikepdf
 import click
 from pyftpdlib.servers import FTPServer
 
+from watchdog.observers import Observer
+from watchdog.events import LoggingEventHandler, FileCreatedEvent
+
 _log = logging.getLogger(__name__)
 
 
@@ -130,6 +133,9 @@ class PathFactory:
     def processed(self, username):
         return os.path.join(self.home(username), "processed")
 
+    def observed(self, username):
+        return os.path.join(self.home(username), "observed")
+
     def iter_paths(self, username):
         for path_fn in (
             self.home,
@@ -139,6 +145,7 @@ class PathFactory:
             self.backup,
             self.error,
             self.processed,
+            self.observed,
         ):
             yield path_fn(username)
 
@@ -227,6 +234,7 @@ class PdfProcessor:
     def __init__(self, path_factory: PathFactory):
         self._path_factory = path_factory
         self._pool = multiprocessing.Pool(2, maxtasksperchild=10)
+        self._observer = Observer()
 
     def run_ocr(self, process):
         self._pool.apply_async(
@@ -329,6 +337,22 @@ class PdfProcessor:
 
         return OcrFtpHandler
 
+    def make_observer(self, user_manager: UserManager):
+        for entry in user_manager.users():
+            self._observer.schedule(ObserveHandler(self), self._path_factory.observed(entry.username), recursive=True)
+    
+        self._observer.start()
+        
+                    
+class ObserveHandler(FileSystemEventHandler):
+    def __init__(self, processor: PdfProcessor):
+        super().__init__()
+        self._processor = processor
+
+    def on_created(self, event):
+        if isinstance(self, event, FileCreatedEvent):
+            self._processor.process(event.src_path)
+
 
 class UserManager(DummyAuthorizer):
     def __init__(self, path_factory: PathFactory, user_list: typing.List[UserEntry]):
@@ -368,6 +392,9 @@ class UserManager(DummyAuthorizer):
                 "elrawMT",
                 recursive=True,
             )
+
+    def users() -> UserEntry:
+        return list(self._user_list)
 
     def validate_authentication(self, username, password, handler):
         try:
@@ -410,6 +437,7 @@ def main(base_dir, user_list, port, passv_range, passv_host, certfile, keyfile):
     user_manager = UserManager(path_factory, read_user_list(user_list))
     pdf_processor = PdfProcessor(path_factory)
     handler = pdf_processor.make_handler(user_manager, passv_range, passv_host, certfile, keyfile)
+    processor.make_observer(user_manager)
 
     server = FTPServer(("", port), handler)
     server.serve_forever()

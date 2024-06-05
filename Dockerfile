@@ -26,13 +26,15 @@ RUN apt update &&\
         libjemalloc2 \
         tesseract-ocr-deu \
         pngquant \
+        npaper \
+        jbig2 \
         &&\
     apt clean &&\
     rm -rf /var/lib/apt/lists/*
 
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
 
-RUN pip install pyftpdlib pikepdf click cryptography pyOpenSSL
+RUN pip install pyftpdlib pikepdf click cryptography pyOpenSSL watchdog
 
 COPY --from=builder /usr/local/lib/ /usr/local/lib/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
