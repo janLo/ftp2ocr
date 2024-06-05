@@ -351,12 +351,18 @@ class ObserveHandler(FileSystemEventHandler):
         super().__init__()
         self._processor = processor
 
+    def do_process(self, filename):
+        if ".pdfocr." in filename or not filename.endswith(".pdf"):
+            _log.info("Ignore observed file %s", filename)
+            return
+        self._processor.process(filename)
+    
     def on_created(self, event):
         if isinstance(event, FileCreatedEvent):
-            self._processor.process(event.src_path)
+            self.do_process(event.src_path)
 
     def on_moved(self, event):
-        self._processor.process(event.dest_path)
+        self.do_process(event.dest_path)
 
 
 class UserManager(DummyAuthorizer):
