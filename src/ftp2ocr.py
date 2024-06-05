@@ -437,7 +437,7 @@ def main(base_dir, user_list, port, passv_range, passv_host, certfile, keyfile):
     user_manager = UserManager(path_factory, read_user_list(user_list))
     pdf_processor = PdfProcessor(path_factory)
     handler = pdf_processor.make_handler(user_manager, passv_range, passv_host, certfile, keyfile)
-    processor.make_observer(user_manager)
+    pdf_processor.make_observer(user_manager)
 
     server = FTPServer(("", port), handler)
     server.serve_forever()
