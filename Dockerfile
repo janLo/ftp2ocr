@@ -15,7 +15,7 @@ RUN apt update &&\
 
 ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
 
-RUN pip install pyftpdlib pikepdf click cryptography pyOpenSSL watchdog
+RUN pip install pyftpdlib pikepdf click cryptography pyOpenSSL watchdog legacycrypt
 
 ADD src/ftp2ocr.py /bin
 RUN chmod +x /bin/ftp2ocr.py

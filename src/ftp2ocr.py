@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import configparser
-import crypt
+import legacycrypt as crypt
 import datetime
 import ipaddress
 import logging
