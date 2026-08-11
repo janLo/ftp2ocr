@@ -1,0 +1,31 @@
+# VCS / CI / editor
+.git
+.gitignore
+.github
+.gitlab-ci.yml
+.idea
+.vscode
+
+# Python artifacts
+.venv
+__pycache__
+*.py[cod]
+*.egg-info
+.pytest_cache
+.ruff_cache
+
+# Docs (not needed in the runtime image)
+docs
+mkdocs.yml
+site
+
+# Tests
+tests
+
+# Local runtime data
+data
+users.txt
+*.pem
+*.crt
+Dockerfile
+.dockerignore

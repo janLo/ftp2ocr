@@ -1,0 +1,32 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+build/
+dist/
+
+# --- Virtual environments ---
+.venv/
+venv/
+
+# --- Tooling caches ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.cache/
+
+# --- Generated / local artifacts ---
+site/
+*.crt
+*.pem
+private.key
+selfsigned.crt
+users.txt
+
+# --- Editor / IDE ---
+.idea/
+.vscode/
+
+# --- OS ---
+.DS_Store

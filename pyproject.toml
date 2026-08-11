@@ -1,0 +1,67 @@
+[project]
+name = "ftp2ocr"
+version = "2.0.0"
+description = "FTPS server that runs OCR on PDF scans uploaded by scanners (e.g. Kyocera) and hands the results to Nextcloud."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Jan Losinski" }]
+requires-python = ">=3.12"
+keywords = ["ftp", "ftps", "ocr", "scanner", "pdf", "ocrmypdf"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: No Input/Output (Daemon)",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Multimedia :: Graphics :: Capture :: Scanners",
+]
+dependencies = [
+    "click>=8.1",
+    "cryptography>=43",
+    # Optional at import time, but installed by default so that pre-v2 user
+    # files with classic crypt(3) hashes keep working.
+    "legacycrypt>=0.3",
+    "ocrmypdf>=17",
+    "pikepdf>=10",
+    "pyftpdlib>=2.2",
+    "pyopenssl>=24",
+    "watchdog>=6",
+]
+
+[project.urls]
+homepage = "https://github.com/janLo/ftp2ocr"
+documentation = "https://janlo.github.io/ftp2ocr/"
+repository = "https://github.com/janLo/ftp2ocr"
+
+[project.scripts]
+ftp2ocr = "ftp2ocr.cli:main"
+
+[dependency-groups]
+dev = [
+    "mkdocs-material>=9.6",
+    "pytest>=8",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ftp2ocr"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "C4", "SIM", "PT", "RUF"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not integration'"
+markers = [
+    "integration: end-to-end tests that need tesseract/ocrmypdf binaries (run inside the container)",
+]

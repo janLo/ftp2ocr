@@ -1,0 +1,49 @@
+# Operations
+
+Day-to-day running: logs, monitoring, failures, and backups.
+
+## Logs
+
+ftp2ocr logs to stdout/stderr, so `docker logs ftp2ocr` shows everything. Increase
+verbosity with `FTP2OCR_VERBOSE=1` (or `--verbose`). Log lines are prefixed with the
+module that produced them (e.g. `ftp2ocr.pipeline`).
+
+## Monitoring
+
+- **Health check** — the container ships a `HEALTHCHECK`; orchestrators pick it up
+  automatically. Manually: `ftp2ocr healthcheck` (or `--port` to probe a custom port).
+- **Queue depth** — there is no explicit queue metric; a growing number of files in the
+  `new_*`/`observed` input folders while workers are busy indicates OCR is slower than
+  the ingest rate. Increase `FTP2OCR_WORKERS` or CPU in that case.
+
+## Failures
+
+Anything that cannot be processed is moved to the user's `error/` directory alongside a
+`<name>.error.txt` file describing the reason. Typical causes:
+
+| Symptom | Likely cause |
+| ------- | ------------ |
+| `not a PDF file…` | Non-PDF uploaded into an input folder. |
+| `uploaded into an unknown directory` | File placed outside the four input folders. |
+| OCR failure in `.error.txt` | Corrupt/unreadable PDF, or OCR engine timeout. |
+
+Re-processing is manual: fix the input and upload it again (or drop it into `observed/`).
+
+## Backups
+
+- The **original uploads** are kept in each user's `backup/` directory. ftp2ocr does not
+  prune them — add your own retention/cleanup if space is a concern.
+- The **OCR results** in `processed/` are the thing Nextcloud consumes; back them up via
+  your normal Nextcloud/backup strategy.
+
+## Shutdown behaviour
+
+On `SIGTERM`/`SIGINT` (e.g. `docker stop`), ftp2ocr stops accepting connections, stops the
+filesystem observer, and waits for in-flight OCR jobs to finish before exiting. Container
+`stop_timeout` should be generous if very large scans are common.
+
+## jemalloc
+
+The entrypoint preloads jemalloc (good for long-running Python memory behaviour). The
+library path is detected at runtime, so the same image works on amd64 and arm64. Disable
+with `FTP2OCR_JEMALLOC=0` if you suspect an interaction problem.

@@ -1,0 +1,58 @@
+site_name: ftp2ocr
+site_description: FTPS server that OCRs PDF scans (e.g. from Kyocera MFPs) and hands them to Nextcloud.
+site_url: https://janlo.github.io/ftp2ocr/
+repo_url: https://github.com/janLo/ftp2ocr
+repo_name: janlo/ftp2ocr
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Overview: index.md
+  - Architecture: architecture.md
+  - Installation: installation.md
+  - Configuration: configuration.md
+  - Usage: usage.md
+  - Operations: operations.md
+  - Upgrading: upgrading.md
+  - Development: development.md
