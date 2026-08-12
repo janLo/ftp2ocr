@@ -59,5 +59,12 @@ EXPOSE 21
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD ["ftp2ocr", "healthcheck"]
 
+# Defaults live in the environment, not in CMD arguments, so `docker run -e
+# FTP2OCR_PORT=2121 ...` (etc.) overrides them — CLI arguments would beat the
+# env vars in click and make the container ignore them. See docs/configuration.
+ENV FTP2OCR_BASE_DIR=/data \
+    FTP2OCR_USER_LIST=/data/users.txt \
+    FTP2OCR_PORT=21
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["ftp2ocr", "serve", "--base-dir", "/data", "--user-list", "/data/users.txt", "--port", "21"]
+CMD ["ftp2ocr", "serve"]
