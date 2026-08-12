@@ -24,10 +24,14 @@ jobs:
         uses: astral-sh/setup-uv@v9.0.0
 
       - name: Install OCR toolchain (for integration tests)
+        # Note: jbig2enc is intentionally absent — Ubuntu does not package it
+        # (Debian only; the Docker image gets it from Debian trixie). ocrmypdf
+        # probes for `jbig2` at runtime and simply skips JBIG2 recompression
+        # when it is unavailable, so tests still exercise the full OCR path.
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            ghostscript jbig2enc pngquant tesseract-ocr tesseract-ocr-deu unpaper
+            ghostscript pngquant tesseract-ocr tesseract-ocr-deu unpaper
 
       - name: Install dependencies
         run: uv sync --frozen

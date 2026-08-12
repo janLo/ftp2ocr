@@ -27,9 +27,11 @@ Generate a password hash first with `uv run ftp2ocr mkpasswd` and add it to `use
 
 !!! note "OCR needs the system toolchain"
 
-    The OCR path needs Tesseract, Ghostscript, unpaper, pngquant and jbig2 installed on
-    the host. Without them, unit tests still run (OCR tests are skipped), but real OCR
-    requires the full toolchain — easiest via the Docker image.
+    The OCR path needs Tesseract, Ghostscript, unpaper and pngquant installed on
+    the host. `jbig2` is optional (it enables JBIG2 image recompression; ocrmypdf
+    skips it when missing — and Ubuntu does not package it at all). Without the
+    toolchain, unit tests still run (OCR tests are skipped), but real OCR
+    requires it — easiest via the Docker image.
 
 ## Tests
 
