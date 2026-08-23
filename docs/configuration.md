@@ -19,6 +19,7 @@ container.
 | `--workers` | `FTP2OCR_WORKERS` | `2` | Number of parallel OCR worker processes. |
 | `--ocr-timeout` | `FTP2OCR_OCR_TIMEOUT` | `300` | Per-page OCR engine timeout in seconds. |
 | `--ocr-language` | `FTP2OCR_OCR_LANGUAGE` | `deu` | Tesseract language for OCR. |
+| `--ocr-jobs` | `FTP2OCR_OCR_JOBS` | – (ocrmypdf's own CPU-based default) | Concurrent OCR jobs per file. `ocrmypdf` defaults to the host's CPU count, which is not cgroup-aware and can oversubscribe a constrained container when combined with `--workers`; set this explicitly to cap it. |
 | `--tls-control-required` | `FTP2OCR_TLS_CONTROL_REQUIRED` | off | Require TLS on the control channel. |
 | `--tls-data-required` | `FTP2OCR_TLS_DATA_REQUIRED` | off | Require TLS on data connections. |
 | `--verbose` | `FTP2OCR_VERBOSE` | off | Enable debug logging. |

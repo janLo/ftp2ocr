@@ -29,6 +29,7 @@ class OcrConfig:
     rotate_pages: bool = True
     deskew: bool = True
     clean: bool = True
+    jobs: int | None = None
 
 
 def reorder_duplex(input_file: Path | str, output_file: Path | str) -> None:
@@ -65,6 +66,7 @@ def run_ocr(input_file: Path | str, output_file: Path | str, config: OcrConfig) 
         clean=config.clean,
         optimize=config.optimize,
         tesseract_timeout=config.timeout,
+        jobs=config.jobs,
         progress_bar=False,
     )
 

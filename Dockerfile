@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         pngquant \
         tesseract-ocr \
         tesseract-ocr-deu \
+        tini \
         unpaper \
     && rm -rf /var/lib/apt/lists/*
 
@@ -66,5 +67,5 @@ ENV FTP2OCR_BASE_DIR=/data \
     FTP2OCR_USER_LIST=/data/users.txt \
     FTP2OCR_PORT=21
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "-g", "--", "/usr/local/bin/entrypoint.sh"]
 CMD ["ftp2ocr", "serve"]

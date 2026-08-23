@@ -1,10 +1,11 @@
 """Tests for the OCR module (duplex reorder; OCR itself is integration-only)."""
 
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
-from ftp2ocr.ocr import OcrConfig, reorder_duplex
+from ftp2ocr.ocr import OcrConfig, reorder_duplex, run_ocr
 from tests.conftest import make_pdf, page_markers
 
 
@@ -43,3 +44,16 @@ def test_ocr_config_defaults() -> None:
     assert config.rotate_pages
     assert config.deskew
     assert config.clean
+    assert config.jobs is None
+
+
+def test_run_ocr_forwards_jobs(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    import ocrmypdf
+
+    mock_ocr = Mock()
+    monkeypatch.setattr(ocrmypdf, "ocr", mock_ocr)
+
+    config = OcrConfig(jobs=3)
+    run_ocr(tmp_path / "in.pdf", tmp_path / "out.pdf", config)
+
+    assert mock_ocr.call_args.kwargs["jobs"] == 3

@@ -1,12 +1,22 @@
 """Tests for the processing pipeline (synchronous parts, no OCR)."""
 
+import logging
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
 from ftp2ocr.ocr import OcrConfig
 from ftp2ocr.paths import PathFactory
-from ftp2ocr.pipeline import Mode, Task, _unique_destination, _write_error, process_file_task, route
+from ftp2ocr.pipeline import (
+    Mode,
+    PdfProcessor,
+    Task,
+    _unique_destination,
+    _write_error,
+    process_file_task,
+    route,
+)
 
 
 @pytest.fixture
@@ -109,3 +119,53 @@ def test_task_collision_does_not_overwrite(factory: PathFactory) -> None:
     others = [p for p in processed.iterdir() if p.name != "dup.pdf"]
     assert len(others) == 1
     assert others[0].read_text() == "new"
+
+
+@pytest.fixture
+def ocr_handler_cls(tmp_path: Path):
+    """The OcrFtpHandler class built by make_handler, without a live worker pool."""
+    processor = PdfProcessor.__new__(PdfProcessor)
+    return processor.make_handler(
+        authorizer=Mock(),
+        passv_range=None,
+        passv_host=None,
+        certfile=tmp_path / "cert.pem",
+        keyfile=tmp_path / "key.pem",
+    )
+
+
+def _fake_handler(handler_cls, *, remote_ip: str, authenticated: bool):
+    handler = object.__new__(handler_cls)
+    handler.remote_ip = remote_ip
+    handler.remote_port = 1234
+    handler.username = "alice" if authenticated else ""
+    handler.authenticated = authenticated
+    return handler
+
+
+def test_healthcheck_session_line_logged_at_debug(ocr_handler_cls, caplog) -> None:
+    handler = _fake_handler(ocr_handler_cls, remote_ip="127.0.0.1", authenticated=False)
+    with caplog.at_level(logging.DEBUG, logger="pyftpdlib"):
+        handler.log("FTP session opened (connect)")
+    assert caplog.records[-1].levelno == logging.DEBUG
+
+
+def test_authenticated_session_line_logged_at_info(ocr_handler_cls, caplog) -> None:
+    handler = _fake_handler(ocr_handler_cls, remote_ip="127.0.0.1", authenticated=True)
+    with caplog.at_level(logging.DEBUG, logger="pyftpdlib"):
+        handler.log("FTP session opened (connect)")
+    assert caplog.records[-1].levelno == logging.INFO
+
+
+def test_remote_session_line_logged_at_info(ocr_handler_cls, caplog) -> None:
+    handler = _fake_handler(ocr_handler_cls, remote_ip="10.0.0.5", authenticated=False)
+    with caplog.at_level(logging.DEBUG, logger="pyftpdlib"):
+        handler.log("FTP session opened (connect)")
+    assert caplog.records[-1].levelno == logging.INFO
+
+
+def test_other_messages_logged_at_info_from_loopback(ocr_handler_cls, caplog) -> None:
+    handler = _fake_handler(ocr_handler_cls, remote_ip="127.0.0.1", authenticated=False)
+    with caplog.at_level(logging.DEBUG, logger="pyftpdlib"):
+        handler.log("something else entirely")
+    assert caplog.records[-1].levelno == logging.INFO

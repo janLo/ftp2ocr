@@ -126,6 +126,13 @@ def main() -> None:
     help="Tesseract language for OCR.",
 )
 @click.option(
+    "--ocr-jobs",
+    type=int,
+    default=None,
+    envvar="FTP2OCR_OCR_JOBS",
+    help="Concurrent OCR jobs per file (default: ocrmypdf's own CPU-count-based default).",
+)
+@click.option(
     "--tls-control-required",
     is_flag=True,
     default=False,
@@ -158,6 +165,7 @@ def serve(
     workers: int,
     ocr_timeout: int,
     ocr_language: str,
+    ocr_jobs: int | None,
     tls_control_required: bool,
     tls_data_required: bool,
     verbose: bool,
@@ -185,7 +193,7 @@ def serve(
             "No users configured in %s — the server will not accept any login.", user_list_path
         )
 
-    ocr = OcrConfig(language=ocr_language, timeout=ocr_timeout)
+    ocr = OcrConfig(language=ocr_language, timeout=ocr_timeout, jobs=ocr_jobs)
     processor = PdfProcessor(path_factory, ocr, workers=workers)
 
     handler = processor.make_handler(

@@ -14,21 +14,28 @@ import multiprocessing
 import os
 import shutil
 import threading
-import time
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
 from pyftpdlib.handlers import TLS_FTPHandler
+from pyftpdlib.log import logger as _ftpd_logger
 from watchdog.events import FileCreatedEvent, FileMovedEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 from ftp2ocr.certs import ensure_cert
 from ftp2ocr.ocr import OcrConfig, copy_file, reorder_duplex, run_ocr
 from ftp2ocr.paths import PathFactory, is_subpath
+from ftp2ocr.stability import StabilizationTimeoutError, wait_for_stable
 
 _log = logging.getLogger(__name__)
+
+# The container HEALTHCHECK opens a loopback control connection every 30s and
+# never logs in; log its session lines at DEBUG instead of INFO to avoid
+# drowning out real scanner sessions.
+_SESSION_LOG_LINES = frozenset({"FTP session opened (connect)", "FTP session closed (disconnect)."})
+_LOOPBACK_ADDRESSES = frozenset({"127.0.0.1", "::1"})
 
 
 class Mode(enum.Enum):
@@ -211,6 +218,15 @@ class PdfProcessor:
             def on_file_received(self, file: str) -> None:
                 outer_self.process(file)
 
+            def log(self, msg, logfun=_ftpd_logger.info) -> None:
+                if (
+                    msg in _SESSION_LOG_LINES
+                    and not self.authenticated
+                    and self.remote_ip in _LOOPBACK_ADDRESSES
+                ):
+                    logfun = _ftpd_logger.debug
+                super().log(msg, logfun=logfun)
+
         OcrFtpHandler.authorizer = authorizer
 
         cert_hostname = hostname or passv_host or "localhost"
@@ -268,16 +284,13 @@ class ObserveHandler(FileSystemEventHandler):
         threading.Thread(target=self._process_when_stable, args=(filename,), daemon=True).start()
 
     def _process_when_stable(self, filename: str) -> None:
-        last_size = -1
-        while True:
-            try:
-                size = os.path.getsize(filename)
-            except OSError:
-                return  # file vanished
-            if size == last_size:
-                break
-            last_size = size
-            time.sleep(self._settle_seconds)
+        try:
+            wait_for_stable(filename, interval=self._settle_seconds)
+        except FileNotFoundError:
+            return  # file vanished
+        except StabilizationTimeoutError:
+            _log.warning("observed file %s did not stabilize in time", filename)
+            return
         self._processor.process(filename)
 
     def on_created(self, event) -> None:
